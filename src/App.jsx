@@ -37,12 +37,14 @@ function App() {
     });
   };
 
-  const getProducts = async () => {
+  const getProducts = async (page = 1) => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/v2/api/${API_PATH}/admin/products`
+        `${BASE_URL}/v2/api/${API_PATH}/admin/products?page=${page}`
       );
       setProducts(res.data.products);
+      setPageInfo(res.data.pagination);
+      console.log(res.data);
     } catch (error) {
       alert("取得產品失敗");
     }
@@ -230,6 +232,12 @@ function App() {
     }
   };
 
+  const [pageInfo, setPageInfo] = useState({});
+
+  const handlePageChange = (page) => {
+    getProducts(page);
+  };
+
   return (
     <>
       {isAuth ? (
@@ -298,30 +306,39 @@ function App() {
           <div className="d-flex justify-content-center">
             <nav>
               <ul className="pagination">
-                <li className="page-item">
-                  <a className="page-link" href="#">
+                <li className={`page-item ${!pageInfo.has_pre && "disabled"}`}>
+                  <a
+                    className="page-link"
+                    href="#"
+                    onClick={() => handlePageChange(pageInfo.current_page - 1)}
+                  >
                     上一頁
                   </a>
                 </li>
-
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    1
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    2
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    3
-                  </a>
-                </li>
-
-                <li className="page-item">
-                  <a className="page-link" href="#">
+                {Array.from({ length: pageInfo.total_pages }).map(
+                  (_, index) => (
+                    <li
+                      className={`page-item ${
+                        pageInfo.current_page === index + 1 && "active"
+                      }`}
+                      key={index}
+                    >
+                      <a
+                        className="page-link"
+                        href="#"
+                        onClick={() => handlePageChange(index + 1)}
+                      >
+                        {index + 1}
+                      </a>
+                    </li>
+                  )
+                )}
+                <li className={`page-item ${!pageInfo.has_next && "disabled"}`}>
+                  <a
+                    className="page-link"
+                    href="#"
+                    onClick={() => handlePageChange(pageInfo.current_page + 1)}
+                  >
                     下一頁
                   </a>
                 </li>
