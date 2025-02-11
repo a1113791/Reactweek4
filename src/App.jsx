@@ -44,7 +44,6 @@ function App() {
       );
       setProducts(res.data.products);
       setPageInfo(res.data.pagination);
-      console.log(res.data);
     } catch (error) {
       alert("取得產品失敗");
     }
@@ -179,7 +178,7 @@ function App() {
         },
       });
     } catch (error) {
-      alert("新增產品失敗");
+      alert(error.response.data.message);
     }
   };
 
@@ -197,7 +196,7 @@ function App() {
         }
       );
     } catch (error) {
-      alert("編輯產品失敗");
+      alert(error.response.data.message);
     }
   };
 
@@ -236,6 +235,27 @@ function App() {
 
   const handlePageChange = (page) => {
     getProducts(page);
+  };
+
+  const handleFileChange = async (e) => {
+    console.log(e.target);
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append("file-to-upload", file);
+    console.log(formData);
+
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/v2/api/${API_PATH}/admin/upload`,
+        formData
+      );
+      const uploadedImageUrl = res.data.imageUrl;
+
+      setTempProduct({
+        ...tempProduct,
+        imageUrl: uploadedImageUrl,
+      });
+    } catch (error) {}
   };
 
   return (
@@ -402,6 +422,19 @@ function App() {
             <div className="modal-body p-4">
               <div className="row g-4">
                 <div className="col-md-4">
+                  <div className="mb-5">
+                    <label htmlFor="fileInput" className="form-label">
+                      {" "}
+                      圖片上傳{" "}
+                    </label>
+                    <input
+                      type="file"
+                      accept=".jpg,.jpeg,.png"
+                      className="form-control"
+                      id="fileInput"
+                      onChange={handleFileChange}
+                    />
+                  </div>
                   <div className="mb-4">
                     <label htmlFor="primary-image" className="form-label">
                       主圖
@@ -532,6 +565,7 @@ function App() {
                         type="number"
                         className="form-control"
                         placeholder="請輸入原價"
+                        min={0}
                         value={tempProduct.origin_price}
                         onChange={handleModalInputChange}
                       />
@@ -546,6 +580,7 @@ function App() {
                         type="number"
                         className="form-control"
                         placeholder="請輸入售價"
+                        min={0}
                         value={tempProduct.price}
                         onChange={handleModalInputChange}
                       />
