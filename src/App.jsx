@@ -179,6 +179,7 @@ function App() {
       });
     } catch (error) {
       alert(error.response.data.message);
+      throw new Error(error.response.data.message);
     }
   };
 
@@ -197,6 +198,7 @@ function App() {
       );
     } catch (error) {
       alert(error.response.data.message);
+      throw new Error(error.response.data.message);
     }
   };
 
@@ -217,7 +219,7 @@ function App() {
       getProducts();
       handleCloseProductModal();
     } catch (error) {
-      alert("更新產品失敗");
+      alert(error.response.data.message);
     }
   };
 
