@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -29,13 +29,35 @@ function Login({ getProducts, setIsAuth }) {
 
       axios.defaults.headers.common["Authorization"] = token;
 
-      getProducts();
+      //getProducts();
 
       setIsAuth(true);
     } catch (error) {
       alert("登入失敗");
+      throw new Error(error.message);
     }
   };
+
+  // const checkUserLogin = async () => {
+  //   try {
+  //     await axios.post(`${BASE_URL}/v2/api/user/check`);
+  //     getProducts();
+  //     setIsAuth(true);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   const token = document.cookie.replace(
+  //     /(?:(?:^|.*;\s*)hexToken\s*\=\s*([^;]*).*$)|^.*$/,
+  //     "$1"
+  //   );
+
+  //   axios.defaults.headers.common["Authorization"] = token;
+
+  //   checkUserLogin();
+  // }, []);
 
   return (
     <div className="d-flex flex-column justify-content-center align-items-center vh-100">
