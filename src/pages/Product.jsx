@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { Modal } from "bootstrap";
 import Pagination from "../components/pagination";
 import ProductModal from "../components/ProductModal";
+import DelProductModal from "../components/DelProductModal";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const API_PATH = import.meta.env.VITE_API_PATH;
@@ -23,11 +23,11 @@ const defaultModalState = {
 function Product() {
   const [products, setProducts] = useState([]);
 
-  const delProductModalRef = useRef(null);
-
   const [modalMode, setModalMode] = useState(null);
 
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+
+  const [isDelProductModalOpen, setIsDelProductModalOpen] = useState(false);
 
   const getProducts = async (page = 1) => {
     try {
@@ -45,10 +45,6 @@ function Product() {
     getProducts();
   }, []);
 
-  useEffect(() => {
-    new Modal(delProductModalRef.current, { backdrop: false });
-  }, []);
-
   const handleOpenProductModal = (mode, product) => {
     setModalMode(mode);
     switch (mode) {
@@ -61,41 +57,15 @@ function Product() {
       default:
         break;
     }
-
     setIsProductModalOpen(true);
   };
 
   const handleOpenDelProductModal = (product) => {
     setTempProduct(product);
-    const modalInstance = Modal.getInstance(delProductModalRef.current);
-    modalInstance.show();
-  };
-  const handleCloseDelProductModal = () => {
-    const modalInstance = Modal.getInstance(delProductModalRef.current);
-    modalInstance.hide();
+    setIsDelProductModalOpen(true);
   };
 
   const [tempProduct, setTempProduct] = useState(defaultModalState);
-
-  const deleteProduct = async () => {
-    try {
-      await axios.delete(
-        `${BASE_URL}/v2/api/${API_PATH}/admin/product/${tempProduct.id}`
-      );
-    } catch (error) {
-      alert("刪除產品失敗");
-    }
-  };
-
-  const handleDeleteProduct = async () => {
-    try {
-      await deleteProduct();
-      getProducts();
-      handleCloseDelProductModal();
-    } catch (error) {
-      alert("刪除商品失敗");
-    }
-  };
 
   const [pageInfo, setPageInfo] = useState({});
 
@@ -181,48 +151,12 @@ function Product() {
         getProducts={getProducts}
       ></ProductModal>
 
-      <div
-        ref={delProductModalRef}
-        className="modal fade"
-        id="delProductModal"
-        tabIndex="-1"
-        style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h1 className="modal-title fs-5">刪除產品</h1>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-                onClick={handleCloseDelProductModal}
-              ></button>
-            </div>
-            <div className="modal-body">
-              你是否要刪除
-              <span className="text-danger fw-bold">{tempProduct.title}</span>
-            </div>
-            <div className="modal-footer">
-              <button
-                onClick={handleCloseDelProductModal}
-                type="button"
-                className="btn btn-secondary"
-              >
-                取消
-              </button>
-              <button
-                onClick={handleDeleteProduct}
-                type="button"
-                className="btn btn-danger"
-              >
-                刪除
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <DelProductModal
+        tempProduct={tempProduct}
+        isOpen={isDelProductModalOpen}
+        setIsOpen={setIsDelProductModalOpen}
+        getProducts={getProducts}
+      ></DelProductModal>
     </>
   );
 }
